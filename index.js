@@ -21,6 +21,10 @@ let tasks = [
     { "id": 1, "title": "Diseñar UI", "description": "Pantalla principal", "status": "todo", "projectId": 1, "assignedTo": 1 }
 ];
 
+let people = [
+    { "id": 1, "name": "James Montealegre", "email": "james@correo.com", "role": "Lider Técnico" } // [cite: 23, 24, 25, 26, 27, 28]
+];
+
 // Rutas API
 
 
@@ -143,10 +147,69 @@ app.delete('/api/v1/tasks/:id', (req, res) => {
 });
 
 
+// API de Personas (Base URL: /api/v1/people)
+
+// GET /api/v1/people - Lista todas las personas
+app.get('/api/v1/people', (req, res) => {
+    res.json(people);
+});
+
+// GET /api/v1/people/:id - Obtiene una persona
+app.get('/api/v1/people/:id', (req, res) => {
+    const id = parseInt(req.params.id);
+    const person = people.find(p => p.id === id);
+    if (person) {
+        res.json(person);
+    } else {
+        res.status(404).json({ message: "Persona no encontrada" });
+    }
+});
+
+// POST /api/v1/people - Crea una persona
+app.post('/api/v1/people', (req, res) => {
+    const { name, email, role } = req.body;
+    const newPerson = {
+        id: peopleIdCounter++,
+        name,
+        email,
+        role
+    };
+    people.push(newPerson);
+    res.status(201).json({ message: "Persona creada" });
+});
+
+// PUT /api/v1/people/:id - Actualiza una persona
+app.put('/api/v1/people/:id', (req, res) => {
+    const id = parseInt(req.params.id);
+    const personIndex = people.findIndex(p => p.id === id);
+
+    if (personIndex !== -1) {
+        people[personIndex] = { ...people[personIndex], ...req.body };
+        res.json({ message: "Persona actualizada" });
+    } else {
+        res.status(404).json({ message: "Persona no encontrada" });
+    }
+});
+
+// DELETE /api/v1/people/:id - Elimina una persona
+app.delete('/api/v1/people/:id', (req, res) => {
+    const id = parseInt(req.params.id);
+    const initialLength = people.length;
+    people = people.filter(p => p.id !== id);
+
+    if (people.length < initialLength) {
+        res.json({ message: "Persona eliminada" });
+    } else {
+        res.status(404).json({ message: "Persona no encontrada" });
+    }
+});
+
+
 // Iniciar servidor
 app.listen(PORT, () => {
     console.log(`Servidor corriendo en http://localhost:${PORT}`);
     console.log('Endpoints disponibles:');
     console.log('  /api/v1/projects');
     console.log('  /api/v1/tasks');
+    console.log('  /api/v1/people');
 });
